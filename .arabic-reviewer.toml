@@ -1,0 +1,4 @@
+# إعدادات مراجع الكود العربي
+max_line_length = 120
+fail_on = "high"
+ignore = [".git", ".venv", "node_modules", "dist", "build", "__pycache__", "vendor"]

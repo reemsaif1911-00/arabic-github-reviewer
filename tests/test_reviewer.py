@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from reviewer.main import markdown, review
+from reviewer.main import load_config, markdown, review
 
 
 def test_detects_secret_and_long_line(tmp_path: Path):
@@ -16,3 +16,14 @@ def test_markdown_when_clean(tmp_path: Path):
     (tmp_path / "clean.py").write_text("print('مرحبا')\n", encoding="utf-8")
     report = markdown(review(tmp_path))
     assert "لم يتم العثور على مشاكل" in report
+
+
+def test_config_and_selected_paths(tmp_path: Path):
+    (tmp_path / ".arabic-reviewer.toml").write_text("max_line_length = 20\n", encoding="utf-8")
+    (tmp_path / "changed.py").write_text("print('" + "x" * 30 + "')\n", encoding="utf-8")
+    (tmp_path / "ignored.py").write_text("api_key = 'abcdefghijklmnop'\n", encoding="utf-8")
+    config = load_config(tmp_path, None)
+    findings = review(tmp_path, ["changed.py"], config)
+    assert config["max_line_length"] == 20
+    assert any(f.rule == "سطر طويل" for f in findings)
+    assert not any(f.file == "ignored.py" for f in findings)
