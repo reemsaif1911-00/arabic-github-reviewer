@@ -27,3 +27,14 @@ def test_config_and_selected_paths(tmp_path: Path):
     assert config["max_line_length"] == 20
     assert any(f.rule == "سطر طويل" for f in findings)
     assert not any(f.file == "ignored.py" for f in findings)
+
+
+def test_empty_selected_paths_do_not_scan_the_repository(tmp_path: Path):
+    (tmp_path / "secret.py").write_text("api_key = 'abcdefghijklmnop'\n", encoding="utf-8")
+    assert review(tmp_path, []) == []
+
+
+def test_python_syntax_error_is_reported(tmp_path: Path):
+    (tmp_path / "broken.py").write_text("def broken(:\n", encoding="utf-8")
+    findings = review(tmp_path)
+    assert any(f.rule == "خطأ صياغة Python" and f.severity == "high" for f in findings)

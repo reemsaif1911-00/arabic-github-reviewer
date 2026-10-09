@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 try:
@@ -37,6 +38,7 @@ SECRET_PATTERNS = [
     ("API key محتمل", re.compile(r"(?i)(api[_-]?key|secret|token)\s*[=:]\s*['\"][A-Za-z0-9_\-/+=]{12,}['\"]")),
     ("مفتاح خاص", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")),
 ]
+MAX_TEXT_BYTES = 512 * 1024
 
 
 def load_config(root: Path, config_path: str | None) -> dict:
@@ -52,10 +54,19 @@ def load_config(root: Path, config_path: str | None) -> dict:
 def review_file(path: Path, root: Path, config: dict) -> list[Finding]:
     findings: list[Finding] = []
     try:
+        if path.stat().st_size > MAX_TEXT_BYTES:
+            return findings
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return findings
     rel = str(path.relative_to(root))
+    if "\x00" in text:
+        return findings
+    if path.suffix == ".py":
+        try:
+            ast.parse(text, filename=rel)
+        except SyntaxError as error:
+            findings.append(Finding("high", "خطأ صياغة Python", rel, error.lineno or 1, "تعذر تحليل الملف بصياغة Python صحيحة.", "أصلحي الخطأ النحوي قبل الدمج وشغّلي الاختبارات."))
     for number, line in enumerate(text.splitlines(), start=1):
         for rule, pattern in SECRET_PATTERNS:
             if pattern.search(line):
@@ -72,7 +83,7 @@ def review_file(path: Path, root: Path, config: dict) -> list[Finding]:
 def review(root: Path, paths: list[str] | None = None, config: dict | None = None) -> list[Finding]:
     config = config or load_config(root, None)
     ignored = set(config.get("ignore", DEFAULTS["ignore"]))
-    candidates = [root / item for item in paths] if paths else list(root.rglob("*"))
+    candidates = list(root.rglob("*")) if paths is None else [root / item for item in paths]
     findings: list[Finding] = []
     for path in candidates:
         if path.is_file() and not ignored.intersection(path.parts):
@@ -109,7 +120,7 @@ def main() -> None:
     findings = review(root, paths, config)
     if args.repair:
         repaired = []
-        candidates = [root / item for item in paths] if paths else list(root.rglob("*.py"))
+        candidates = list(root.rglob("*.py")) if paths is None else [root / item for item in paths]
         for path in candidates:
             if path.is_file():
                 original = path.read_text(encoding="utf-8", errors="ignore")

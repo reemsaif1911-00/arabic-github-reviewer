@@ -1,5 +1,14 @@
 const assert = require('assert');
+const fs = require('fs');
 const { findings, summarize, repair, translateReport } = require('../site/analyzer.js');
+
+const html = fs.readFileSync('site/index.html', 'utf8');
+assert.ok(html.includes('id="source"'));
+assert.ok(html.includes('id="file"'));
+assert.ok(html.includes('id="explain"'));
+assert.ok(html.includes('id="translate"'));
+assert.ok(html.includes('id="repair"'));
+assert.ok(html.includes('src="analyzer.js"'));
 
 const source = "import os\nvalue = xrange(3)\nresult = eval(\"'ok'\")\n";
 const summary = summarize(source);
