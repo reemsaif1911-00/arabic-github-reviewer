@@ -20,17 +20,39 @@
     return { language: 'Python (تقدير واجهة محلية)', lines: lines.length, imports, functions, classes, findings: findings(code) };
   }
 
+  function maskPython(code) {
+    let out = '', quote = null, triple = false, escaped = false;
+    for (let i = 0; i < code.length; i += 1) {
+      const ch = code[i], next = code.slice(i, i + 3);
+      if (!quote && ch === '#') { while (i < code.length && code[i] !== '\n') { out += ' '; i += 1; } i -= 1; continue; }
+      if (quote) {
+        if (triple && next === quote.repeat(3)) { out += '   '; i += 2; quote = null; triple = false; escaped = false; continue; }
+        if (!triple && ch === quote && !escaped) { out += ' '; quote = null; escaped = false; continue; }
+        out += ch === '\n' ? '\n' : ' '; escaped = ch === '\\' && !escaped; if (ch !== '\\') escaped = false; continue;
+      }
+      if (ch === "'" || ch === '"') { triple = next === ch.repeat(3); quote = ch; out += triple ? '   ' : ' '; if (triple) i += 2; continue; }
+      out += ch;
+    }
+    return out;
+  }
+
   function repair(code) {
     let lines = code.split(/\r?\n/), changes = [], needsAst = false;
+    const masked = maskPython(code).split(/\r?\n/);
     lines = lines.map((line, i) => {
-      let out = line;
-      const reps = [[/\bxrange\b/g, 'range', 'استبدال xrange بـ range في Python 3.'], [/\braw_input\s*\(/g, 'input(', 'استبدال raw_input بـ input في Python 3.'], [/\bunicode\s*\(/g, 'str(', 'استبدال unicode بـ str في Python 3.']];
-      reps.forEach(([repl, to, why]) => { const next = out.replace(repl, to); if (next !== out) { changes.push([i + 1, out, next, why]); out = next; } });
-      if (/\beval\s*\(/.test(out)) { const next = out.replace(/\beval\s*\(/, 'ast.literal_eval('); changes.push([i + 1, out, next, 'استبدال eval بـ ast.literal_eval لتجنب تنفيذ كود غير موثوق.']); out = next; needsAst = true; }
-      if (/\bexec\s*\(/.test(out)) changes.push([i + 1, out, out, 'لم يتم تعديل exec تلقائيًا؛ يحتاج إعادة تصميم آمنة.']);
+      let out = line, mask = masked[i] || '';
+      const reps = [[/\bxrange\b/g, 'range', 'استبدال xrange بـ range في Python 3.'], [/\braw_input\b(?=\s*\()/g, 'input', 'استبدال raw_input بـ input في Python 3.'], [/\bunicode\b(?=\s*\()/g, 'str', 'استبدال unicode بـ str في Python 3.']];
+      reps.forEach(([repl, to, why]) => { let match; repl.lastIndex = 0; while ((match = repl.exec(mask)) !== null) { const next = out.slice(0, match.index) + to + out.slice(match.index + match[0].length); changes.push([i + 1, out, next, why]); out = next; mask = mask.slice(0, match.index) + ' '.repeat(match[0].length) + mask.slice(match.index + match[0].length); } });
+      const evalMatch = /\beval\s*\(\s*(?:(['"])(?:\\.|(?!\1)[\s\S])*\1|[-+]?\d+(?:\.\d+)?|True|False|None)\s*\)/.exec(line);
+      if (evalMatch && mask.slice(evalMatch.index, evalMatch.index + 4) === 'eval') { const evalIndex = evalMatch.index; const next = out.slice(0, evalIndex) + 'ast.literal_eval' + out.slice(evalIndex + 4); changes.push([i + 1, out, next, 'استبدال eval بـ ast.literal_eval للحالات الحرفية فقط.']); out = next; needsAst = true; }
+      if (/\beval\s*\(/.test(mask)) changes.push([i + 1, out, out, 'لم يتم تعديل eval تلقائيًا لأن المدخل ليس literal آمنًا.']);
+      if (/\bexec\s*\(/.test(mask)) changes.push([i + 1, out, out, 'لم يتم تعديل exec تلقائيًا؛ يحتاج إعادة تصميم آمنة.']);
       return out;
     });
     if (needsAst && !/^\s*import\s+ast\b/m.test(lines.join('\n'))) { lines.unshift('import ast'); changes.unshift([1, '', 'import ast', 'إضافة الاستيراد المطلوب.']); }
+    const stack = [], pairs = { ')': '(', ']': '[', '}': '{' };
+    for (const ch of maskPython(lines.join('\n'))) { if ('([{'.includes(ch)) stack.push(ch); else if (')]}'.includes(ch) && stack.pop() !== pairs[ch]) return { modified: code, changes: [[1, code, code, 'رُفض الإصلاح لأن البنية الناتجة تحتوي أقواسًا غير متوازنة.']] }; }
+    if (stack.length) return { modified: code, changes: [[1, code, code, 'رُفض الإصلاح لأن البنية الناتجة تحتوي أقواسًا غير متوازنة.']] };
     return { modified: lines.join('\n'), changes };
   }
 

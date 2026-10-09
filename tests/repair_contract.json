@@ -1,0 +1,14 @@
+[
+  {
+    "name": "comments-and-strings",
+    "source": "# xrange raw_input eval\ntext = 'xrange raw_input eval'\nvalue = xrange(2)\nresult = eval(\"'ok'\")\n",
+    "must_include": ["value = range(2)", "ast.literal_eval"],
+    "must_preserve": ["# xrange raw_input eval", "'xrange raw_input eval'"]
+  },
+  {
+    "name": "dynamic-eval",
+    "source": "user_value = input()\nresult = eval(user_value)\n",
+    "must_include": [],
+    "must_preserve": ["eval(user_value)"]
+  }
+]
