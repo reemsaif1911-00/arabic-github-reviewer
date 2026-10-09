@@ -9,7 +9,7 @@ assert.ok(html.includes('id="file"'));
 assert.ok(html.includes('id="explain"'));
 assert.ok(html.includes('id="translate"'));
 assert.ok(html.includes('id="repair"'));
-assert.ok(html.includes('src="analyzer.js"'));
+assert.ok(/src="analyzer\.js(?:\?[^\"]*)?"/.test(html));
 
 const source = "import os\nvalue = xrange(3)\nresult = eval(\"'ok'\")\n";
 const summary = summarize(source);
