@@ -15,9 +15,10 @@
   function summarize(code) {
     const lines = code.split(/\r?\n/);
     const imports = lines.filter(line => /^\s*(import|from)\s+/.test(line)).length;
-    const functions = [...code.matchAll(/^\s*def\s+([A-Za-z_]\w*)/gm)].map(match => match[1]);
+    const functionDetails = [...code.matchAll(/^\s*def\s+([A-Za-z_]\w*)\s*\(([^)]*)\)/gm)].map(match => ({ name: match[1], signature: `${match[1]}(${match[2]})`, explanation: `دالة باسم ${match[1]} تستقبل ${match[2].trim() ? 'المعاملات المحددة' : 'لا معاملات'}.` }));
+    const functions = functionDetails.map(item => item.name);
     const classes = [...code.matchAll(/^\s*class\s+([A-Za-z_]\w*)/gm)].map(match => match[1]);
-    return { language: 'Python (تقدير واجهة محلية)', lines: lines.length, imports, functions, classes, findings: findings(code) };
+    return { language: 'Python (تقدير واجهة محلية)', lines: lines.length, imports, functions, functionDetails, classes, findings: findings(code) };
   }
 
   function maskPython(code) {
@@ -62,6 +63,15 @@
     return { ...summary, labels, note: 'هذه ترجمة قواعدية للتقرير إلى العربية وليست ترجمة ذكاء اصطناعي لفهم المعنى.' };
   }
 
+  let pyodidePromise;
+  function validatePython(code) {
+    pyodidePromise ||= import('https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.mjs')
+      .then(module => module.loadPyodide())
+      .then(pyodide => { pyodide.globals.set('source_code', code); pyodide.runPython('import ast\nast.parse(source_code)'); return { available: true, valid: true }; })
+      .catch(error => ({ available: false, valid: false, error: String(error && error.message || error) }));
+    return pyodidePromise;
+  }
+
   function esc(value) { return String(value).replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[match])); }
 
   if (typeof window !== 'undefined') {
@@ -71,9 +81,9 @@
     const file = document.querySelector('#file');
     const renderFindings = (items, title) => { result.innerHTML = `<strong>${title}</strong><p>${items.length ? `تم العثور على ${items.length} ملاحظة:` : 'لم نجد ملاحظات ضمن القواعد الحالية.'}</p>` + items.map(x => `<div class="change"><b>السطر ${x.n} — ${x.rule}</b><br>${x.text}<br><span class="muted">الاقتراح: ${x.suggestion}</span></div>`).join(''); };
     file.addEventListener('change', event => { const selected = event.target.files[0]; if (!selected) return; const reader = new FileReader(); reader.onload = () => { source.value = reader.result; status.textContent = `تم تحميل ${selected.name}. اضغطي شرح أو إصلاح.`; }; reader.readAsText(selected); });
-    document.querySelector('#explain').onclick = () => { const summary = summarize(source.value); result.innerHTML = `<strong>شرح بنيوي للكود</strong><p>اللغة: ${summary.language}<br>عدد الأسطر: ${summary.lines}<br>الاستيرادات: ${summary.imports}<br>الدوال: ${summary.functions.length ? summary.functions.join('، ') : 'لا توجد'}<br>الأصناف: ${summary.classes.length ? summary.classes.join('، ') : 'لا توجد'}</p>`; renderFindings(summary.findings, 'ملاحظات القواعد'); status.textContent = 'اكتمل الشرح البنيوي المحلي.'; };
+    document.querySelector('#explain').onclick = () => { const summary = summarize(source.value); const functions = summary.functionDetails.length ? summary.functionDetails.map(item => `<li><code>${esc(item.signature)}</code> — ${item.explanation}</li>`).join('') : '<li>لا توجد دوال معرفة.</li>'; result.innerHTML = `<strong>شرح عربي بنيوي</strong><p>اللغة: ${summary.language}<br>عدد الأسطر: ${summary.lines}<br>عدد الاستيرادات: ${summary.imports}<br>الأصناف: ${summary.classes.length ? summary.classes.join('، ') : 'لا توجد'}</p><h3>وظائف الدوال</h3><ul>${functions}</ul><p class="muted">الشرح يحدد البنية والقاعدة وسبب الخطأ؛ لا يدّعي فهمًا دلاليًا توليديًا.</p>`; renderFindings(summary.findings, 'سبب كل ملاحظة وكيفية تجنبها'); status.textContent = 'اكتمل الشرح البنيوي المحلي.'; };
     document.querySelector('#translate').onclick = () => { const translated = translateReport(summarize(source.value)); result.innerHTML = `<strong>ترجمة التقرير</strong><p>${translated.note}</p><p>اللغة المتوقعة: ${translated.language}<br>عدد الأسطر: ${translated.lines}<br>الدوال: ${translated.functions.length ? translated.functions.join('، ') : 'لا توجد'}<br>الأصناف: ${translated.classes.length ? translated.classes.join('، ') : 'لا توجد'}</p>`; renderFindings(translated.findings, 'القواعد مترجمة إلى العربية'); status.textContent = 'اكتملت ترجمة التقرير القاعدية.'; };
-    document.querySelector('#repair').onclick = () => { const code = source.value; if (!code.trim()) { status.textContent = 'الصقي الكود أولًا.'; return; } const repaired = repair(code); result.innerHTML = `<strong>الكود الأصلي</strong><pre class="status">${esc(code)}</pre><strong>الكود المعدل</strong><pre class="status">${esc(repaired.modified)}</pre><h3>سبب كل تغيير (${repaired.changes.length})</h3>` + repaired.changes.map(change => `<div class="change"><b>السطر ${change[0]}</b><span class="muted"> — ${esc(change[3])}</span><code>قبل: ${esc(change[1])}\nبعد: ${esc(change[2])}</code></div>`).join(''); status.textContent = repaired.changes.length ? 'تم إنشاء إصلاحات قابلة للمراجعة.' : 'لم توجد إصلاحات آلية.'; };
+    document.querySelector('#repair').onclick = async () => { const code = source.value; if (!code.trim()) { status.textContent = 'الصقي الكود أولًا.'; return; } status.textContent = 'جارٍ التحقق من صلاحية الكود المعدل عبر محلّل Python...'; const repaired = repair(code); const validation = await validatePython(repaired.modified); if (!validation.available || !validation.valid) { result.innerHTML = `<strong>لم يتم عرض الإصلاح كنسخة صالحة</strong><p class="note">${validation.available ? 'فشل فحص صياغة Python؛ تم الاحتفاظ بالكود الأصلي.' : 'تعذر تحميل محلّل Python داخل المتصفح؛ لم نعرض التعديل على أنه صالح.'}</p><pre class="status">${esc(code)}</pre><p class="muted">التفاصيل: ${esc(validation.error || 'خطأ صياغة')}</p>`; status.textContent = 'تم رفض عرض الإصلاح حتى يمر فحص Python.'; return; } result.innerHTML = `<strong>الكود الأصلي</strong><pre class="status">${esc(code)}</pre><strong>الكود المعدل — اجتاز فحص Python</strong><pre class="status">${esc(repaired.modified)}</pre><h3>سبب كل تغيير (${repaired.changes.length})</h3>` + repaired.changes.map(change => `<div class="change"><b>السطر ${change[0]}</b><span class="muted"> — ${esc(change[3])}</span><code>قبل: ${esc(change[1])}\nبعد: ${esc(change[2])}</code></div>`).join(''); status.textContent = repaired.changes.length ? 'تم التحقق من الإصلاح عبر Python ويمكن مراجعته.' : 'الكود صالح ولم توجد إصلاحات آلية.'; };
   }
 
   if (typeof module !== 'undefined') module.exports = { findings, summarize, repair, translateReport };
