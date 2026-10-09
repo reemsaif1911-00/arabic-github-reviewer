@@ -4,9 +4,17 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 and older
+    import tomli as tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
+
+try:
+    from .repair import repair_python
+except ImportError:  # تشغيل الملف مباشرة عبر python reviewer/main.py
+    from repair import repair_python
 
 
 @dataclass(frozen=True)
@@ -91,6 +99,7 @@ def main() -> None:
     parser.add_argument("--format", choices=("markdown", "json"), default="markdown")
     parser.add_argument("--config", default=None)
     parser.add_argument("--paths-file", default=None, help="ملف يحوي مسارًا واحدًا لكل ملف مطلوب فحصه")
+    parser.add_argument("--repair", action="store_true", help="إظهار إصلاحات Python القابلة للتفسير")
     args = parser.parse_args()
     root = Path(args.root).resolve()
     config = load_config(root, args.config)
@@ -98,6 +107,17 @@ def main() -> None:
     if args.paths_file:
         paths = [line.strip() for line in Path(args.paths_file).read_text(encoding="utf-8").splitlines() if line.strip()]
     findings = review(root, paths, config)
+    if args.repair:
+        repaired = []
+        candidates = [root / item for item in paths] if paths else list(root.rglob("*.py"))
+        for path in candidates:
+            if path.is_file():
+                original = path.read_text(encoding="utf-8", errors="ignore")
+                modified, changes = repair_python(original)
+                if changes:
+                    repaired.append({"file": str(path.relative_to(root)), "original": original, "modified": modified, "changes": [asdict(change) for change in changes]})
+        print(json.dumps({"findings": [asdict(finding) for finding in findings], "repairs": repaired}, ensure_ascii=False, indent=2))
+        raise SystemExit(1 if any(f.severity == "high" for f in findings) else 0)
     if args.format == "json":
         print(json.dumps([asdict(finding) for finding in findings], ensure_ascii=False, indent=2))
     else:

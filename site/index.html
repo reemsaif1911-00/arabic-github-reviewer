@@ -1,57 +1,25 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>مراجع الكود العربي — تركيب وصيانة GitHub</title>
-  <style>
-    :root { color-scheme: dark; --bg:#0d1117; --panel:#161b22; --line:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#2dd4bf; --green:#238636; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial,"Tahoma",sans-serif; line-height:1.8; }
-    main { max-width:1060px; margin:auto; padding:64px 24px; }
-    .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.4px; }
-    h1 { font-size:clamp(36px,6vw,68px); line-height:1.15; margin:14px 0; }
-    h2 { font-size:30px; margin-top:64px; }
-    p { color:var(--muted); font-size:20px; }
-    .actions { display:flex; gap:14px; flex-wrap:wrap; margin:28px 0 48px; }
-    a { color:var(--accent); }
-    .button { display:inline-block; border:1px solid var(--accent); padding:10px 18px; text-decoration:none; color:var(--text); }
-    .button.primary { background:var(--accent); color:var(--bg); font-weight:700; }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    .panel { background:var(--panel); border:1px solid var(--line); padding:22px; }
-    .panel h3 { margin-top:0; color:var(--accent); }
-    .price { font-size:34px; font-weight:700; }
-    li { margin:8px 0; color:var(--muted); }
-    .plan-button { display:inline-block; margin-top:10px; padding:9px 14px; border:1px solid var(--accent); color:var(--text); text-decoration:none; font-weight:700; }
-    .plan-button:hover { background:var(--accent); color:var(--bg); }
-    .note { border-right:4px solid var(--green); padding:12px 18px; margin-top:24px; color:var(--muted); }
-    footer { margin-top:64px; border-top:1px solid var(--line); padding-top:18px; color:var(--muted); }
-    @media(max-width:760px){ .grid { grid-template-columns:1fr; } }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مراجع الكود العربي | شرح وترجمة وإصلاح</title>
+<style>
+:root{color-scheme:dark;--bg:#08111f;--panel:#111d2e;--line:#263850;--text:#eaf2ff;--muted:#9fb0c7;--accent:#49e0c1;--warn:#ffc857;--danger:#ff7b8b}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#123453 0,#08111f 42%);color:var(--text);font-family:Arial,Tahoma,sans-serif;line-height:1.7}main{max-width:1120px;margin:auto;padding:30px 18px 70px}.top{display:flex;justify-content:space-between;gap:18px;align-items:center}.brand{color:var(--accent);font-weight:800}.badge{border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--muted);font-size:13px}h1{font-size:clamp(34px,7vw,68px);line-height:1.1;max-width:850px;margin:45px 0 15px}h2{margin-top:45px}p{color:var(--muted);font-size:18px}.hero{max-width:850px}.actions,.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}.button,button{border:1px solid var(--accent);background:transparent;color:var(--text);padding:11px 16px;border-radius:8px;text-decoration:none;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#07131d}.button:hover,button:hover{filter:brightness(1.12)}.editor{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:rgba(17,29,46,.9);border:1px solid var(--line);border-radius:14px;padding:18px}.panel h3{margin-top:0;color:var(--accent)}textarea{width:100%;min-height:330px;background:#07101c;color:#dcecff;border:1px solid var(--line);border-radius:8px;padding:14px;direction:ltr;text-align:left;font:14px/1.6 monospace;resize:vertical}.status{min-height:90px;background:#07101c;border:1px dashed var(--line);padding:14px;border-radius:8px;white-space:pre-wrap}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.change{border-right:3px solid var(--accent);padding:8px 12px;margin:10px 0;background:#0b1726}.change code{display:block;direction:ltr;text-align:left;white-space:pre-wrap;font:13px monospace;color:#dcecff}.muted{color:var(--muted)}.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.price{font-size:32px;font-weight:800}.plan a{display:inline-block;margin-top:10px}.note{border-right:4px solid var(--warn);padding:10px 14px;color:var(--muted)}footer{margin-top:45px;border-top:1px solid var(--line);padding-top:20px;color:var(--muted)}@media(max-width:760px){.editor,.result-grid,.plans{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}textarea{min-height:240px}}
+</style>
 </head>
-<body>
-<main>
-  <div class="eyebrow">خدمة تركيب وتخصيص لمراجعة الكود بالعربية</div>
-  <h1>اكتشفي الأخطاء قبل أن تصل إلى الإنتاج.</h1>
-  <p>نركّب لكِ مراجع الكود العربي على GitHub، ونضبطه ليفحص Pull Requests تلقائيًا ويكشف الأسرار ومشاكل الجودة قبل الدمج.</p>
-  <div class="actions">
-    <a class="button primary" href="mailto:reemsaif1911@gmail.com?subject=%D8%B7%D9%84%D8%A8%20%D8%AA%D8%AC%D8%B1%D8%A8%D8%A9%20%D9%85%D8%B1%D8%A7%D8%AC%D8%B9%20%D8%A7%D9%84%D9%83%D9%88%D8%AF&body=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%AA%D8%AC%D8%B1%D8%A8%D8%A9%20%D9%85%D8%B1%D8%A7%D8%AC%D8%B9%20%D8%A7%D9%84%D9%83%D9%88%D8%AF%20%D8%B9%D9%84%D9%89%20%D9%85%D8%B3%D8%AA%D9%88%D8%AF%D8%B9%D9%8A.%20%D8%B1%D8%A7%D8%A8%D8%B7%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%88%D8%AF%D8%B9:%20">اطلب تجربة مجانية</a>
-    <a class="button" href="https://github.com/reemsaif1911-00/arabic-github-reviewer">شاهد المشروع على GitHub</a>
-  </div>
-  <div class="grid">
-    <section class="panel"><h3>الأمان أولًا</h3><p>اكتشاف مفاتيح API والأسرار المحتملة داخل الملفات المتغيرة.</p></section>
-    <section class="panel"><h3>عربي وواضح</h3><p>تعليقات عملية بالعربية تشرح المشكلة والاقتراح بدل رسائل تقنية مبهمة.</p></section>
-    <section class="panel"><h3>تركيب عملي</h3><p>نركّب الأداة ونختبرها معك بدل أن تحتاجي إلى البرمجة أو الإعداد اليدوي.</p></section>
-  </div>
-  <h2>باقات البداية</h2>
-  <div class="grid">
-    <section class="panel"><h3>باقة البداية</h3><div class="price">$50</div><ul><li>مستودع واحد</li><li>تفعيل GitHub Actions</li><li>اختبار Pull Request</li><li>شرح التقرير</li></ul><a class="plan-button" href="mailto:reemsaif1911@gmail.com?subject=%D8%B7%D9%84%D8%A8%20%D8%AF%D9%81%D8%B9%20%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AF%D8%A7%D9%8A%D8%A9&body=%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AF%D8%A7%D9%8A%D8%A9%20%D8%A8%D9%82%D9%8A%D9%85%D8%A9%2050%20USD.%20%D8%A3%D8%B1%D8%B3%D9%84%D9%8A%20%D9%84%D9%8A%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20PayPal.">اطلبي الدفع</a></section>
-    <section class="panel"><h3>باقة الفريق</h3><div class="price">$150</div><ul><li>حتى 5 مستودعات</li><li>قواعد مخصصة</li><li>تقرير أمان أولي</li><li>إعداد للفريق</li></ul><a class="plan-button" href="mailto:reemsaif1911@gmail.com?subject=%D8%B7%D9%84%D8%A8%20%D8%AF%D9%81%D8%B9%20%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D9%81%D8%B1%D9%8A%D9%82&body=%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D9%81%D8%B1%D9%8A%D9%82%20%D8%A8%D9%82%D9%8A%D9%85%D8%A9%20150%20USD.%20%D8%A3%D8%B1%D8%B3%D9%84%D9%8A%20%D9%84%D9%8A%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20PayPal.">اطلبي الدفع</a></section>
-    <section class="panel"><h3>الصيانة</h3><div class="price">$30<span style="font-size:16px">/شهريًا</span></div><ul><li>متابعة التشغيل</li><li>تحديث القواعد</li><li>حل مشاكل Workflow</li><li>تقرير شهري</li></ul><a class="plan-button" href="mailto:reemsaif1911@gmail.com?subject=%D8%B7%D9%84%D8%A8%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D8%A7%D9%84%D8%B5%D9%8A%D8%A7%D9%86%D8%A9&body=%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D8%A7%D9%84%D8%B5%D9%8A%D8%A7%D9%86%D8%A9%20%D8%A8%D9%82%D9%8A%D9%85%D8%A9%2030%20USD%20%D8%B4%D9%87%D8%B1%D9%8A%D8%A7%D9%8B.%20%D8%A3%D8%B1%D8%B3%D9%84%D9%8A%20%D9%84%D9%8A%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D9%81%D8%B9%20%D8%B9%D8%A8%D8%B1%20PayPal.">اطلبي الدفع</a></section>
-  </div>
-  <div class="panel" style="margin-top:24px"><h3>الدفع عبر PayPal</h3><p>بعد الاتفاق على الباقة، أرسلي المبلغ عبر PayPal إلى:</p><p><a href="mailto:reemsaif1911@gmail.com" style="color:var(--accent);font-size:22px;font-weight:700">reemsaif1911@gmail.com</a></p><p style="font-size:16px">اكتبي اسم الباقة في ملاحظات الدفع، ثم أرسلي إيصال العملية عبر البريد. هذه طريقة دفع يدوية وليست اشتراكًا تلقائيًا.</p></div>
-  <div class="note">التجربة الأولى محدودة لأول 3 جهات. الدفع عبر PayPal متاح يدويًا بعد الاتفاق؛ لا يوجد رابط دفع أو اشتراك إلكتروني آلي بعد.</div>
-  <footer>التواصل: <a href="mailto:reemsaif1911@gmail.com">reemsaif1911@gmail.com</a> — الأسعار أولية وقابلة للتعديل بعد اختبار السوق.</footer>
+<body><main>
+<header class="top"><div class="brand">مراجع الكود العربي</div><div class="badge">MVP مجاني — يعمل داخل المتصفح</div></header>
+<section class="hero"><h1>افهمي الكود، أصلحيه، وراجعيه بالعربية.</h1><p>الصقي كود Python أو ارفعي ملفًا، ثم استخدمي الشرح والترجمة والإصلاح. النسخة الحالية تستخدم قواعد ثابتة قابلة للتفسير، ولا ترسل الكود إلى خادم خارجي.</p><div class="actions"><a class="button primary" href="#analyzer">ابدئي التحليل</a><a class="button" href="mailto:reemsaif1911@gmail.com">اطلبي تجربة للفريق</a></div></section>
+<section id="analyzer"><h2>أداة التحليل والإصلاح</h2><div class="editor"><div class="panel"><h3>1 — أدخلي الكود</h3><textarea id="source" placeholder="الصقي كود Python هنا...\nمثال:\nvalue = xrange(3)\nresult = eval(\"'ok'\")"></textarea><div class="toolbar"><label class="button" for="file">رفع ملف Python</label><input id="file" type="file" accept=".py,.txt" hidden><button class="primary" id="explain">شرح الكود</button><button id="translate">ترجمة الشرح</button><button id="repair">إصلاح الكود</button></div><div id="status" class="status">جاهز للتحليل. اختاري شرحًا أو ترجمة أو إصلاحًا.</div></div><div class="panel"><h3>2 — النتيجة</h3><div id="result" class="status">ستظهر هنا الملاحظات والتغييرات مع سبب كل تعديل.</div></div></div></section>
+<section><h2>كيف يعمل الإصلاح؟</h2><div class="result-grid"><div class="panel"><h3>إصلاح محافظ</h3><p>يحوّل أنماط Python 2 الشائعة مثل <code>xrange</code> و<code>raw_input</code>، ويستبدل <code>eval</code> الحرفي بـ <code>ast.literal_eval</code> مع إضافة الاستيراد المطلوب.</p></div><div class="panel"><h3>شفافية كاملة</h3><p>يعرض الكود الأصلي والمعدل، ورقم السطر، واسم القاعدة، وسبب التغيير. لا يعدّل <code>exec</code> تلقائيًا لأنه يحتاج قرارًا هندسيًا.</p></div></div><div class="note">الإصلاح الذكي التوليدي عبر نموذج AI سيكون طبقة اختيارية لاحقًا عبر خادم آمن؛ لا نضع مفتاح نموذج داخل صفحة عامة ولا نرسل كود العملاء دون موافقة.</div></section>
+<section><h2>الخدمة والباقات</h2><div class="plans"><div class="panel plan"><h3>تجربة</h3><div class="price">مجاني</div><p>تحليل داخل المتصفح وقواعد أساسية.</p><a class="button" href="mailto:reemsaif1911@gmail.com?subject=تجربة مراجع الكود">اطلبي تجربة</a></div><div class="panel plan"><h3>تركيب</h3><div class="price">$50</div><p>تركيب GitHub Actions على مستودع واحد واختبار Pull Request.</p><a class="button primary" href="mailto:reemsaif1911@gmail.com?subject=طلب باقة التركيب">اطلبي الدفع</a></div><div class="panel plan"><h3>فريق</h3><div class="price">$150</div><p>حتى 5 مستودعات وقواعد مخصصة وتقرير أولي.</p><a class="button" href="mailto:reemsaif1911@gmail.com?subject=طلب باقة الفريق">اطلبي الدفع</a></div></div><p>PayPal يدويًا بعد الاتفاق: <a href="mailto:reemsaif1911@gmail.com">reemsaif1911@gmail.com</a></p></section>
+<footer>التواصل والدعم: <a href="mailto:reemsaif1911@gmail.com">reemsaif1911@gmail.com</a> — لا ترسلي مفاتيح API أو كلمات المرور أو بيانات الدفع.</footer>
 </main>
-</body>
-</html>
+<script>
+const source=document.querySelector('#source'),result=document.querySelector('#result'),status=document.querySelector('#status');
+document.querySelector('#file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{source.value=r.result;status.textContent=`تم تحميل ${f.name}. اضغطي شرح أو إصلاح.`};r.readAsText(f)});
+function findings(code){const rows=[];const lines=code.split(/\r?\n/);lines.forEach((line,i)=>{const n=i+1;if(/\b(eval|exec)\s*\(/i.test(line))rows.push({n,rule:'تنفيذ ديناميكي',text:'قد ينفذ كودًا غير موثوق.',suggestion:'استخدمي ast.literal_eval للحالات الحرفية أو أعيدي تصميم التدفق.'});if(/\b(api[_-]?key|secret|token)\s*[=:]\s*[\'\"][A-Za-z0-9_\-/+=]{12,}/i.test(line))rows.push({n,rule:'سر محتمل',text:'قد يحتوي السطر على مفتاح أو سر.',suggestion:'انقلي السر إلى متغيرات البيئة أو GitHub Secrets.'});if(/TODO|FIXME/.test(line))rows.push({n,rule:'مهمة مؤجلة',text:'يوجد تعليق يحتاج متابعة.',suggestion:'حوّليه إلى Issue أو عالجيه.'});if(line.length>120)rows.push({n,rule:'سطر طويل',text:'السطر أطول من 120 حرفًا.',suggestion:'قسّميه إلى أسطر أو دالة مساعدة.'})});return rows}
+function repair(code){let lines=code.split(/\r?\n/),changes=[],needsAst=false;lines=lines.map((line,i)=>{let out=line;const reps=[[/\bxrange\b/g,'range','استبدال xrange بـ range في Python 3.'],[/\braw_input\s*\(/g,'input(','استبدال raw_input بـ input في Python 3.'],[/\bunicode\s*\(/g,'str(','استبدال unicode بـ str في Python 3.']];reps.forEach(([repl,to,why])=>{const next=out.replace(repl,to);if(next!==out){changes.push([i+1,out,next,why]);out=next}});if(/\beval\s*\(/.test(out)){const next=out.replace(/\beval\s*\(/,'ast.literal_eval(');changes.push([i+1,out,next,'استبدال eval بـ ast.literal_eval لتجنب تنفيذ كود غير موثوق.']);out=next;needsAst=true}if(/\bexec\s*\(/.test(out))changes.push([i+1,out,out,'لم يتم تعديل exec تلقائيًا؛ يحتاج إعادة تصميم آمنة.']);return out});if(needsAst&&!/^\s*import\s+ast\b/m.test(lines.join('\n'))){lines.unshift('import ast');changes.unshift([1,'','import ast','إضافة الاستيراد المطلوب.'])}return {modified:lines.join('\n'),changes}}
+function renderFindings(items, title){result.innerHTML=`<strong>${title}</strong><p>${items.length?`تم العثور على ${items.length} ملاحظة:`:'لم نجد ملاحظات ضمن القواعد الحالية.'}</p>`+items.map(x=>`<div class="change"><b>السطر ${x.n} — ${x.rule}</b><br>${x.text}<br><span class="muted">الاقتراح: ${x.suggestion}</span></div>`).join('')}
+document.querySelector('#explain').onclick=()=>{const c=source.value;const f=findings(c);renderFindings(f,'شرح عربي للكود والملاحظات');status.textContent='اكتمل الشرح المحلي.'};document.querySelector('#translate').onclick=()=>{const f=findings(source.value);renderFindings(f,'الترجمة العربية للملاحظات');status.textContent='تمت ترجمة شرح القواعد إلى العربية.'};document.querySelector('#repair').onclick=()=>{const c=source.value;if(!c.trim()){status.textContent='الصقي الكود أولًا.';return}const r=repair(c);result.innerHTML=`<strong>الكود الأصلي</strong><pre class="status">${esc(c)}</pre><strong>الكود المعدل</strong><pre class="status">${esc(r.modified)}</pre><h3>سبب كل تغيير (${r.changes.length})</h3>`+r.changes.map(x=>`<div class="change"><b>السطر ${x[0]}</b><span class="muted"> — ${esc(x[3])}</span><code>قبل: ${esc(x[1])}\nبعد: ${esc(x[2])}</code></div>`).join('');status.textContent=r.changes.length?'تم إنشاء إصلاحات قابلة للمراجعة.':'لم توجد إصلاحات آلية.'};function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+</script></body></html>

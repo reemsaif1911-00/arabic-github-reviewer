@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "مراجع كود عربي مجاني يعمل داخل GitHub Actions"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = ["tomli>=2.0; python_version < '3.11'"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
