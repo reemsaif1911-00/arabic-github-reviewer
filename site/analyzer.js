@@ -44,8 +44,9 @@
       const reps = [[/\bxrange\b/g, 'range', 'استبدال xrange بـ range في Python 3.'], [/\braw_input\b(?=\s*\()/g, 'input', 'استبدال raw_input بـ input في Python 3.'], [/\bunicode\b(?=\s*\()/g, 'str', 'استبدال unicode بـ str في Python 3.']];
       reps.forEach(([repl, to, why]) => { let match; repl.lastIndex = 0; while ((match = repl.exec(mask)) !== null) { const next = out.slice(0, match.index) + to + out.slice(match.index + match[0].length); changes.push([i + 1, out, next, why]); out = next; mask = mask.slice(0, match.index) + ' '.repeat(match[0].length) + mask.slice(match.index + match[0].length); } });
       const evalMatch = /\beval\s*\(\s*(?:(['"])(?:\\.|(?!\1)[\s\S])*\1|[-+]?\d+(?:\.\d+)?|True|False|None)\s*\)/.exec(line);
-      if (evalMatch && mask.slice(evalMatch.index, evalMatch.index + 4) === 'eval') { const evalIndex = evalMatch.index; const next = out.slice(0, evalIndex) + 'ast.literal_eval' + out.slice(evalIndex + 4); changes.push([i + 1, out, next, 'استبدال eval بـ ast.literal_eval للحالات الحرفية فقط.']); out = next; needsAst = true; }
-      if (/\beval\s*\(/.test(mask)) changes.push([i + 1, out, out, 'لم يتم تعديل eval تلقائيًا لأن المدخل ليس literal آمنًا.']);
+      let safeEvalReplaced = false;
+      if (evalMatch && mask.slice(evalMatch.index, evalMatch.index + 4) === 'eval') { const evalIndex = evalMatch.index; const next = out.slice(0, evalIndex) + 'ast.literal_eval' + out.slice(evalIndex + 4); changes.push([i + 1, out, next, 'استبدال eval بـ ast.literal_eval للحالات الحرفية فقط.']); out = next; needsAst = true; safeEvalReplaced = true; }
+      if (!safeEvalReplaced && /\beval\s*\(/.test(mask)) changes.push([i + 1, out, out, 'لم يتم تعديل eval تلقائيًا لأن المدخل ليس literal آمنًا.']);
       if (/\bexec\s*\(/.test(mask)) changes.push([i + 1, out, out, 'لم يتم تعديل exec تلقائيًا؛ يحتاج إعادة تصميم آمنة.']);
       return out;
     });

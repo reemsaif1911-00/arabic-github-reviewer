@@ -27,9 +27,11 @@ const translated = translateReport(summary);
 assert.ok(translated.note.includes('ليست ترجمة ذكاء اصطناعي'));
 assert.ok(findings('print("ok")').length === 0);
 for (const testCase of contract) {
-  const output = repair(testCase.source).modified;
+  const result = repair(testCase.source);
+  const output = result.modified;
   for (const expected of testCase.must_include) assert.ok(output.includes(expected), testCase.name);
   for (const preserved of testCase.must_preserve) assert.ok(output.includes(preserved), testCase.name);
+  if (testCase.name === 'comments-and-strings') assert.equal(result.changes.filter(change => change[3].includes('لم يتم تعديل eval')).length, 0);
 }
 const invalid = repair('value = (1\n');
 assert.equal(invalid.modified, 'value = (1\n');
