@@ -38,3 +38,17 @@ def test_python_syntax_error_is_reported(tmp_path: Path):
     (tmp_path / "broken.py").write_text("def broken(:\n", encoding="utf-8")
     findings = review(tmp_path)
     assert any(f.rule == "خطأ صياغة Python" and f.severity == "high" for f in findings)
+
+
+def test_dynamic_rule_ignores_python_strings_and_comments(tmp_path: Path):
+    sample = tmp_path / "safe_fixture.py"
+    sample.write_text("# eval(user_value)\nmessage = 'eval(user_value)'\n", encoding="utf-8")
+    findings = review(tmp_path)
+    assert not any(f.rule == "تنفيذ ديناميكي" for f in findings)
+
+
+def test_dynamic_rule_detects_real_python_call(tmp_path: Path):
+    sample = tmp_path / "unsafe.py"
+    sample.write_text("result = eval(user_value)\n", encoding="utf-8")
+    findings = review(tmp_path)
+    assert any(f.rule == "تنفيذ ديناميكي" and f.severity == "high" for f in findings)
