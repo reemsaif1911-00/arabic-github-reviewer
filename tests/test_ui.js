@@ -45,13 +45,15 @@ const invalid = repair('value = (1\n');
 assert.equal(invalid.modified, 'value = (1\n');
 assert.ok(invalid.changes[0][3].includes('أقواس'));
 const parsedCodes = [];
-const fakeRuntime = () => Promise.resolve({
+const sharedRuntime = {
   globals: { set: (key, value) => { parsedCodes.push(value); } },
   runPython: () => { if (parsedCodes.at(-1).includes('broken(:')) throw new Error('invalid syntax'); }
-});
-Promise.all([validatePython('value = 1\n', fakeRuntime), validatePython('def broken(:\n', fakeRuntime)]).then(results => {
+};
+const fakeRuntime = () => Promise.resolve(sharedRuntime);
+Promise.all([validatePython('value = 1\n', fakeRuntime), validatePython('def broken(:\n', fakeRuntime), validatePython('value = 2\n', fakeRuntime)]).then(results => {
   assert.equal(results[0].valid, true);
   assert.equal(results[1].valid, false);
-  assert.deepEqual(parsedCodes, ['value = 1\n', 'def broken(:\n']);
+  assert.equal(results[2].valid, true);
+  assert.deepEqual(parsedCodes, ['value = 1\n', 'def broken(:\n', 'value = 2\n']);
   console.log('ui logic tests passed');
 }).catch(error => { console.error(error); process.exitCode = 1; });
