@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import argparse
 import ast
+import io
 import json
 import re
+import tokenize
 try:
     import tomllib
 except ModuleNotFoundError:  # Python 3.10 and older
@@ -41,6 +43,28 @@ SECRET_PATTERNS = [
 MAX_TEXT_BYTES = 512 * 1024
 
 
+def python_code_lines(text: str) -> list[str]:
+    """Return Python lines with strings/comments blanked for code-only rules."""
+    lines = text.splitlines()
+    chars = [list(line) for line in lines]
+    try:
+        tokens = tokenize.generate_tokens(io.StringIO(text).readline)
+        for token in tokens:
+            if token.type not in (tokenize.STRING, tokenize.COMMENT):
+                continue
+            (start_row, start_col), (end_row, end_col) = token.start, token.end
+            for row in range(start_row - 1, end_row):
+                if row < 0 or row >= len(chars):
+                    continue
+                left = start_col if row == start_row - 1 else 0
+                right = end_col if row == end_row - 1 else len(chars[row])
+                for col in range(left, min(right, len(chars[row]))):
+                    chars[row][col] = " "
+    except tokenize.TokenError:
+        return lines
+    return ["".join(line) for line in chars]
+
+
 def load_config(root: Path, config_path: str | None) -> dict:
     path = Path(config_path) if config_path else root / ".arabic-reviewer.toml"
     config = dict(DEFAULTS)
@@ -60,6 +84,7 @@ def review_file(path: Path, root: Path, config: dict) -> list[Finding]:
     except OSError:
         return findings
     rel = str(path.relative_to(root))
+    is_test_fixture = "tests" in path.parts
     if "\x00" in text:
         return findings
     if path.suffix == ".py":
@@ -67,13 +92,17 @@ def review_file(path: Path, root: Path, config: dict) -> list[Finding]:
             ast.parse(text, filename=rel)
         except SyntaxError as error:
             findings.append(Finding("high", "خطأ صياغة Python", rel, error.lineno or 1, "تعذر تحليل الملف بصياغة Python صحيحة.", "أصلحي الخطأ النحوي قبل الدمج وشغّلي الاختبارات."))
-    for number, line in enumerate(text.splitlines(), start=1):
-        for rule, pattern in SECRET_PATTERNS:
-            if pattern.search(line):
-                findings.append(Finding("high", rule, rel, number, "يبدو أن هذا السطر يحتوي على سر أو مفتاح حساس.", "انقل السر إلى GitHub Secrets أو متغيرات البيئة ودوّر المفتاح المكشوف."))
+    code_lines = python_code_lines(text) if path.suffix == ".py" else text.splitlines()
+    for number, (line, code_line) in enumerate(zip(text.splitlines(), code_lines), start=1):
+        if not is_test_fixture:
+            for rule, pattern in SECRET_PATTERNS:
+                if pattern.search(line):
+                    findings.append(Finding("high", rule, rel, number, "يبدو أن هذا السطر يحتوي على سر أو مفتاح حساس.", "انقل السر إلى GitHub Secrets أو متغيرات البيئة ودوّر المفتاح المكشوف."))
         if len(line) > int(config["max_line_length"]):
             findings.append(Finding("low", "سطر طويل", rel, number, f"السطر أطول من {config['max_line_length']} حرفًا وقد يصعب قراءته.", "قسّم السطر إلى عدة أسطر أو استخدم دالة مساعدة."))
-        if re.search(r"(?i)\b(eval|exec)\s*\(", line):
+        # لا نطبّق كشف التنفيذ الديناميكي على HTML/JavaScript العام؛
+        # فالنصوص التعليمية وحقول الإدخال قد تحتوي كلمة eval دون تنفيذها.
+        if path.suffix == ".py" and not is_test_fixture and re.search(r"(?i)\b(eval|exec)\s*\(", code_line):
             findings.append(Finding("high", "تنفيذ ديناميكي", rel, number, "استخدام eval/exec قد يسمح بتنفيذ كود غير موثوق.", "استبدله بتحليل آمن للمدخلات أو خريطة وظائف معروفة."))
         if "TODO" in line or "FIXME" in line:
             findings.append(Finding("info", "مهمة مؤجلة", rel, number, "يوجد TODO/FIXME يحتاج إلى متابعة.", "حوّل المهمة إلى Issue أو عالجها قبل الدمج."))
